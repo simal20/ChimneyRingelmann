@@ -1186,7 +1186,6 @@
           const keywords = ['chimney', 'smokestack', 'pipe', 'factory', 'refinery', 'power plant', 'tower', 'pole'];
           
           let isValid = false;
-          let topPred = predictions[0] ? predictions[0].className : 'Tidak diketahui';
           
           for (let p of predictions) {
             let className = p.className.toLowerCase();
@@ -1197,7 +1196,7 @@
           }
           
           if (!isValid) {
-            aiErrorMsg = `Objek cerobong tidak valid! AI mendeteksi ini sebagai: ${topPred}. Harap arahkan kamera tepat ke cerobong asap.`;
+            aiErrorMsg = "Gambar tidak sesuai dan perlu ambil ulang.";
           }
         }
 
@@ -1232,9 +1231,9 @@
       now.toLocaleString('id-ID', { dateStyle:'short', timeStyle:'medium' });
 
     if (aiErrorMsg) {
-      card.style.setProperty('--result-accent', '#ef4444'); // Merah untuk error
-      document.getElementById('resultScale').textContent = "TIDAK VALID";
-      document.getElementById('resultScale').style.fontSize = "24px"; // sesuaikan ukuran font jika perlu
+      card.style.setProperty('--result-accent', '#ef4444');
+      document.getElementById('resultScale').textContent = "TIDAK SESUAI";
+      document.getElementById('resultScale').style.fontSize = "26px";
       document.getElementById('resultDesc').textContent = aiErrorMsg;
       
       document.querySelector('.result-meta-row').style.display = 'none';
@@ -1281,7 +1280,7 @@
     document.getElementById('captureBtn').style.opacity = '1';
     document.getElementById('permError').classList.remove('visible');
     
-    // Kembalikan tampilan result info jika disembunyikan oleh error
+    // Kembalikan tampilan result info
     document.querySelector('.result-meta-row').style.display = 'grid';
     document.getElementById('scaleLegend').style.display = 'block';
     document.getElementById('resultScale').style.fontSize = "32px";
