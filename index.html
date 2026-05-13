@@ -1178,6 +1178,7 @@
         dCtx.putImageData(imgData, 0, 0);
 
         // AI Verification
+        let aiErrorMsg = null;
         if (mobilenetModel) {
           const predictions = await mobilenetModel.classify(captureCanvas);
           const keywords = ['chimney', 'smokestack', 'pipe', 'factory', 'refinery', 'power plant', 'tower', 'pole'];
@@ -1194,9 +1195,7 @@
           }
           
           if (!isValid) {
-            document.getElementById('procOverlay').classList.remove('visible');
-            alert(`Objek cerobong tidak valid! AI mendeteksi ini sebagai: ${topPred}. Harap arahkan kamera tepat ke cerobong asap.`);
-            return;
+            aiErrorMsg = `Objek cerobong tidak valid! AI mendeteksi ini sebagai: ${topPred}. Harap arahkan kamera tepat ke cerobong asap.`;
           }
         }
 
@@ -1207,7 +1206,7 @@
         stopCamera();
 
         // Show results
-        showResults(avgRGB, result);
+        showResults(avgRGB, result, aiErrorMsg);
 
       } catch (e) {
         console.error(e);
@@ -1219,36 +1218,49 @@
   }
 
   /* ─────────── SHOW RESULTS ─────────── */
-  function showResults(avgRGB, result) {
+  function showResults(avgRGB, result, aiErrorMsg) {
     const r = result.ref;
 
     // Update card accent color
     const card = document.getElementById('resultCard');
-    card.style.setProperty('--result-accent', r.color);
-
-    // Main result text
-    document.getElementById('resultScale').textContent =
-      `Skala ${r.scale} — ${r.status}`;
-    document.getElementById('resultDesc').textContent =
-      `${r.label} · ${r.status.toUpperCase()}`;
-
-    // Meta cells
-    document.getElementById('metaRgb').textContent =
-      `rgb(${avgRGB[0]}, ${avgRGB[1]}, ${avgRGB[2]})`;
-    document.getElementById('metaRef').innerHTML =
-      `<span class="color-swatch" style="background:${r.hex}"></span>${r.hex}`;
-    document.getElementById('metaDist').textContent =
-      result.distance.toFixed(2);
-    document.getElementById('metaOpacity').textContent =
-      `${r.opacity}%`;
-
+    
     // Timestamp stamp
     const now = new Date();
     document.getElementById('resultStamp').textContent =
       now.toLocaleString('id-ID', { dateStyle:'short', timeStyle:'medium' });
 
-    // Rebuild legend with highlight
-    buildLegend(result.index);
+    if (aiErrorMsg) {
+      card.style.setProperty('--result-accent', '#ef4444'); // Merah untuk error
+      document.getElementById('resultScale').textContent = "TIDAK VALID";
+      document.getElementById('resultScale').style.fontSize = "24px"; // sesuaikan ukuran font jika perlu
+      document.getElementById('resultDesc').textContent = aiErrorMsg;
+      
+      document.querySelector('.result-meta-row').style.display = 'none';
+      document.getElementById('scaleLegend').style.display = 'none';
+    } else {
+      card.style.setProperty('--result-accent', r.color);
+      document.getElementById('resultScale').textContent =
+        `Skala ${r.scale} — ${r.status}`;
+      document.getElementById('resultScale').style.fontSize = "32px";
+      document.getElementById('resultDesc').textContent =
+        `${r.label} · ${r.status.toUpperCase()}`;
+
+      // Meta cells
+      document.getElementById('metaRgb').textContent =
+        `rgb(${avgRGB[0]}, ${avgRGB[1]}, ${avgRGB[2]})`;
+      document.getElementById('metaRef').innerHTML =
+        `<span class="color-swatch" style="background:${r.hex}"></span>${r.hex}`;
+      document.getElementById('metaDist').textContent =
+        result.distance.toFixed(2);
+      document.getElementById('metaOpacity').textContent =
+        `${r.opacity}%`;
+
+      document.querySelector('.result-meta-row').style.display = 'grid';
+      document.getElementById('scaleLegend').style.display = 'block';
+      
+      // Rebuild legend with highlight
+      buildLegend(result.index);
+    }
 
     // Switch views
     document.getElementById('cameraView').style.display    = 'none';
@@ -1266,6 +1278,12 @@
     document.getElementById('captureBtn').disabled = false;
     document.getElementById('captureBtn').style.opacity = '1';
     document.getElementById('permError').classList.remove('visible');
+    
+    // Kembalikan tampilan result info jika disembunyikan oleh error
+    document.querySelector('.result-meta-row').style.display = 'grid';
+    document.getElementById('scaleLegend').style.display = 'block';
+    document.getElementById('resultScale').style.fontSize = "32px";
+
     buildLegend();
     startCamera();
   }
