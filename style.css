@@ -1,4 +1,4 @@
-﻿:root {
+:root {
       --bg-deep:      #f8fafc;
       --bg-panel:     #ffffff;
       --bg-card:      #ffffff;
@@ -769,4 +769,10 @@
     /* â”€â”€â”€â”€â”€ RESPONSIVE â”€â”€â”€â”€â”€ */
     @media (min-height: 800px) {
       .camera-container { max-width: 380px; margin: 0 auto; }
+    }
+
+    #cameraView {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
     }

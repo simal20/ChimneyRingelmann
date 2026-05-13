@@ -1,0 +1,16 @@
+$files = @("app.js", "style.css", "index.html")
+foreach ($f in $files) {
+  $c = [System.IO.File]::ReadAllText("$PWD\$f", [System.Text.Encoding]::UTF8)
+  $c = $c.Replace("â”€", "─")
+  $c = $c.Replace("â—ˆ", "◈")
+  $c = $c.Replace("Ã—", "×")
+  $c = $c.Replace("â€”", "—")
+  $c = $c.Replace("Â·", "·")
+  $c = $c.Replace("ðŸ ­", "🏭")
+  $c = $c.Replace("â€“", "-")
+  $c = $c.Replace("ðŸ“·", "📷")
+  $c = $c.Replace("âŠ™", "⊙")
+  $c = $c.Replace("â†º", "↺")
+  $c = $c.Replace("â„¹ï¸ ", "ℹ️")
+  [System.IO.File]::WriteAllText("$PWD\$f", $c, [System.Text.Encoding]::UTF8)
+}

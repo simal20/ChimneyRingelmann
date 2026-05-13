@@ -1,183 +1,191 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="id">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>Ringelmann Smoke Analyzer</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Share+Tech+Mono&family=Exo+2:wght@300;400;600;800&display=swap" rel="stylesheet" />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Share+Tech+Mono&family=Exo+2:wght@300;400;600;800&display=swap"
+    rel="stylesheet" />
 
-  
+
   <link rel="stylesheet" href="style.css" />
 
   <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
   <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/mobilenet"></script>
 </head>
+
 <body>
 
-<div class="app-shell">
+  <div class="app-shell">
 
-  <!-- HEADER -->
-  <header>
-    <div class="logo-group">
-      <div class="logo-icon">ðŸ­</div>
-      <div class="logo-text">
-        <span class="logo-title">OpacityMeter</span>
-        <span class="logo-sub">Ringelmann Scale v1.0</span>
-      </div>
-    </div>
-    <div id="statusBadge" class="status-badge idle">
-      <div class="status-dot"></div>
-      <span id="statusText">INIT</span>
-    </div>
-  </header>
-
-  <!-- MAIN -->
-  <main id="mainContent">
-
-    <!-- INSTRUCTION -->
-    <div class="instruction-strip" id="instructionStrip">
-      Fokuskan asap cerobong penuhi kotak ini
-    </div>
-
-    <!-- CAMERA VIEW -->
-    <div id="cameraView">
-      <div class="camera-container" id="camBox">
-        <video id="videoFeed" autoplay playsinline muted></video>
-
-        <!-- Corner decorators -->
-        <div class="cam-corner tl"></div>
-        <div class="cam-corner tr"></div>
-        <div class="cam-corner bl"></div>
-        <div class="cam-corner br"></div>
-
-        <!-- Viewfinder box -->
-        <div class="viewfinder" id="viewfinder">
-          <div class="vf-tick tl"></div>
-          <div class="vf-tick tr"></div>
-          <div class="vf-tick bl"></div>
-          <div class="vf-tick br"></div>
-        </div>
-
-        <!-- Scan line layer -->
-        <div class="vf-scan"></div>
-
-        <!-- HUD info -->
-        <div class="cam-hud">
-          <div class="hud-tag">LIVE FEED<br>REAR CAM</div>
-          <div class="hud-tag" id="resTag">RES: â€“</div>
+    <!-- HEADER -->
+    <header>
+      <div class="logo-group">
+        <div class="logo-icon">ðŸ­</div>
+        <div class="logo-text">
+          <span class="logo-title">Chimney Ringelmann</span>
+          <span class="logo-sub">by Malgus</span>
         </div>
       </div>
+      <div id="statusBadge" class="status-badge idle">
+        <div class="status-dot"></div>
+        <span id="statusText">INIT</span>
+      </div>
+    </header>
 
-      <!-- Zoom Control -->
-      <div class="zoom-control-container" id="zoomControl">
-        <label for="zoomSlider" class="zoom-label">Zoom: <span id="zoomValOut">1.0x</span></label>
-        <input type="range" id="zoomSlider" min="1" max="5" step="0.1" value="1">
+    <!-- MAIN -->
+    <main id="mainContent">
+
+      <!-- INSTRUCTION -->
+      <div class="instruction-strip" id="instructionStrip">
+        Fokuskan asap cerobong berada di kotak merah
       </div>
 
-      <!-- Permission error -->
-      <div class="perm-error" id="permError">
-        <div class="perm-icon">ðŸ“·</div>
-        <div class="perm-title">Akses Kamera Ditolak</div>
-        <div class="perm-msg">Izinkan akses kamera di pengaturan browser Anda, lalu muat ulang halaman ini untuk melanjutkan.</div>
-      </div>
+      <!-- CAMERA VIEW -->
+      <div id="cameraView">
+        <div class="camera-container" id="camBox">
+          <video id="videoFeed" autoplay playsinline muted></video>
 
-      <button class="btn-capture" id="captureBtn" onclick="doCapture()">
-        âŠ™ &nbsp;Ambil Gambar &amp; Analisa
-      </button>
-    </div>
+          <!-- Corner decorators -->
+          <div class="cam-corner tl"></div>
+          <div class="cam-corner tr"></div>
+          <div class="cam-corner bl"></div>
+          <div class="cam-corner br"></div>
 
-    <!-- RESULT VIEW -->
-    <div class="result-container" id="resultView">
-
-      <div class="result-canvas-wrap">
-        <canvas id="captureCanvas"></canvas>
-        <div class="result-stamp" id="resultStamp"></div>
-      </div>
-
-      <div class="result-card" id="resultCard">
-        <div class="result-label">â—ˆ Hasil Analisis Ringelmann</div>
-        <div class="result-scale" id="resultScale">â€“</div>
-        <div class="result-desc" id="resultDesc">â€“</div>
-        <div class="result-meta-row">
-          <div class="meta-cell">
-            <div class="meta-cell-label">Avg RGB Terukur</div>
-            <div class="meta-cell-value" id="metaRgb">â€“</div>
+          <!-- Viewfinder box -->
+          <div class="viewfinder" id="viewfinder">
+            <div class="vf-tick tl"></div>
+            <div class="vf-tick tr"></div>
+            <div class="vf-tick bl"></div>
+            <div class="vf-tick br"></div>
           </div>
-          <div class="meta-cell">
-            <div class="meta-cell-label">Warna Referensi</div>
-            <div class="meta-cell-value" id="metaRef">â€“</div>
-          </div>
-          <div class="meta-cell">
-            <div class="meta-cell-label">Jarak Euclidean</div>
-            <div class="meta-cell-value" id="metaDist">â€“</div>
-          </div>
-          <div class="meta-cell">
-            <div class="meta-cell-label">Kepekatan</div>
-            <div class="meta-cell-value" id="metaOpacity">â€“</div>
+
+          <!-- Scan line layer -->
+          <div class="vf-scan"></div>
+
+          <!-- HUD info -->
+          <div class="cam-hud">
+            <div class="hud-tag">LIVE FEED<br>REAR CAM</div>
+            <div class="hud-tag" id="resTag">RES: -</div>
           </div>
         </div>
+
+        <!-- Zoom Control -->
+        <div class="zoom-control-container" id="zoomControl">
+          <label for="zoomSlider" class="zoom-label">Zoom: <span id="zoomValOut">1.0x</span></label>
+          <input type="range" id="zoomSlider" min="1" max="5" step="0.1" value="1">
+        </div>
+
+        <!-- Permission error -->
+        <div class="perm-error" id="permError">
+          <div class="perm-icon">📷</div>
+          <div class="perm-title">Akses Kamera Ditolak</div>
+          <div class="perm-msg">Izinkan akses kamera di pengaturan browser Anda, lalu muat ulang halaman ini untuk
+            melanjutkan.</div>
+        </div>
+
+        <button class="btn-capture" id="captureBtn" onclick="doCapture()">
+          ⊙ &nbsp;Ambil Gambar &amp; Analisa
+        </button>
       </div>
 
-      <!-- Scale legend highlighted -->
-      <div class="scale-legend" id="scaleLegend"></div>
+      <!-- RESULT VIEW -->
+      <div class="result-container" id="resultView">
 
-      <button class="btn-retry" onclick="doRetry()">â†º &nbsp;Ulangi Pengukuran</button>
-    </div>
+        <div class="result-canvas-wrap">
+          <canvas id="captureCanvas"></canvas>
+          <div class="result-stamp" id="resultStamp"></div>
+        </div>
 
-    <!-- INFO BOX -->
-    <div class="info-box">
-      <div class="info-box-title">
-        <span>â„¹ï¸</span> Tentang Skala Ringelmann
+        <div class="result-card" id="resultCard">
+          <div class="result-label">◈ Hasil Analisis Ringelmann</div>
+          <div class="result-scale" id="resultScale">-</div>
+          <div class="result-desc" id="resultDesc">-</div>
+          <div class="result-meta-row">
+            <div class="meta-cell">
+              <div class="meta-cell-label">Avg RGB Terukur</div>
+              <div class="meta-cell-value" id="metaRgb">-</div>
+            </div>
+            <div class="meta-cell">
+              <div class="meta-cell-label">Warna Referensi</div>
+              <div class="meta-cell-value" id="metaRef">-</div>
+            </div>
+            <div class="meta-cell">
+              <div class="meta-cell-label">Jarak Euclidean</div>
+              <div class="meta-cell-value" id="metaDist">-</div>
+            </div>
+            <div class="meta-cell">
+              <div class="meta-cell-label">Kepekatan</div>
+              <div class="meta-cell-value" id="metaOpacity">-</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Scale legend highlighted -->
+        <div class="scale-legend" id="scaleLegend"></div>
+
+        <button class="btn-retry" onclick="doRetry()">↺ &nbsp;Ulangi Pengukuran</button>
       </div>
-      <div class="info-box-text">
-        <strong>Skala Ringelmann</strong> adalah standar pengukuran tingkat kepekatan (opasitas) asap cerobong industri. Terdiri dari 6 tingkat (0-5), di mana <strong>Skala 0 (0%)</strong> berarti jernih dan <strong>Skala 5 (100%)</strong> berarti asap sangat pekat. Analisa ini penting untuk memantau emisi gas buang agar selalu berada di bawah batas aman lingkungan.
+
+      <!-- INFO BOX -->
+      <div class="info-box">
+        <div class="info-box-title">
+          <span>â„¹ï¸</span> Tentang Skala Ringelmann
+        </div>
+        <div class="info-box-text">
+          <strong>Skala Ringelmann</strong> adalah standar pengukuran tingkat kepekatan (opasitas) asap cerobong
+          industri. Terdiri dari 6 tingkat (0-5), di mana <strong>Skala 0 (0%)</strong> berarti jernih dan <strong>Skala
+            5 (100%)</strong> berarti asap sangat pekat. Analisa ini penting untuk memantau emisi gas buang agar selalu
+          berada di bawah batas aman lingkungan.
+        </div>
+        <div class="rc-illus">
+          <div class="rc-item">
+            <div class="rc-box" data-scale="0"></div>
+            <div class="rc-label">0</div>
+          </div>
+          <div class="rc-item">
+            <div class="rc-box" data-scale="1"></div>
+            <div class="rc-label">1</div>
+          </div>
+          <div class="rc-item">
+            <div class="rc-box" data-scale="2"></div>
+            <div class="rc-label">2</div>
+          </div>
+          <div class="rc-item">
+            <div class="rc-box" data-scale="3"></div>
+            <div class="rc-label">3</div>
+          </div>
+          <div class="rc-item">
+            <div class="rc-box" data-scale="4"></div>
+            <div class="rc-label">4</div>
+          </div>
+          <div class="rc-item">
+            <div class="rc-box" data-scale="5"></div>
+            <div class="rc-label">5</div>
+          </div>
+        </div>
       </div>
-      <div class="rc-illus">
-        <div class="rc-item">
-          <div class="rc-box" data-scale="0"></div>
-          <div class="rc-label">0</div>
-        </div>
-        <div class="rc-item">
-          <div class="rc-box" data-scale="1"></div>
-          <div class="rc-label">1</div>
-        </div>
-        <div class="rc-item">
-          <div class="rc-box" data-scale="2"></div>
-          <div class="rc-label">2</div>
-        </div>
-        <div class="rc-item">
-          <div class="rc-box" data-scale="3"></div>
-          <div class="rc-label">3</div>
-        </div>
-        <div class="rc-item">
-          <div class="rc-box" data-scale="4"></div>
-          <div class="rc-label">4</div>
-        </div>
-        <div class="rc-item">
-          <div class="rc-box" data-scale="5"></div>
-          <div class="rc-label">5</div>
-        </div>
-      </div>
-    </div>
 
-  </main>
+    </main>
 
-  <footer>INDUSTRIAL EMISSION MONITOR Â· RINGELMANN SCALE ANALYZER Â· PT MONITORING SYSTEM</footer>
-</div>
+    <footer>RINGELMANN SCALE ANALYZER FOR BOILER CHIMNEY EMISSION</footer>
+  </div>
 
-<!-- Processing Overlay -->
-<div class="processing-overlay" id="procOverlay">
-  <div class="proc-spinner"></div>
-  <div class="proc-label">Menganalisa sampel...</div>
-</div>
+  <!-- Processing Overlay -->
+  <div class="processing-overlay" id="procOverlay">
+    <div class="proc-spinner"></div>
+    <div class="proc-label">Menganalisa sampel...</div>
+  </div>
 
-<!-- Hidden canvas for full frame capture -->
-<canvas id="hiddenCanvas"></canvas>
+  <!-- Hidden canvas for full frame capture -->
+  <canvas id="hiddenCanvas"></canvas>
 
 
-<script src="app.js"></script>
+  <script src="app.js"></script>
 
 </body>
-</html>
 
+</html>
