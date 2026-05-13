@@ -13,7 +13,7 @@
       --text-muted:   #475569;
       --text-dim:     #94a3b8;
       --font-display: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-      --font-mono:    ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+      --font-mono:    var(--font-ui);
       --font-ui:      -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     }
 
@@ -96,7 +96,6 @@
       font-size: 15px;
       letter-spacing: 0.04em;
       color: var(--text-primary);
-      text-transform: uppercase;
     }
 
     .logo-sub {
@@ -110,7 +109,7 @@
       font-family: var(--font-mono);
       font-size: 10px;
       padding: 3px 8px;
-      border-radius: 3px;
+      border-radius: 6px;
       border: 1px solid;
       letter-spacing: 0.08em;
       text-transform: uppercase;
@@ -168,7 +167,7 @@
       background: rgba(6, 182, 212, 0.06);
       border: 1px solid rgba(6,182,212,0.2);
       border-left: 3px solid var(--cyan);
-      border-radius: 4px;
+      border-radius: 12px;
       padding: 8px 12px;
       font-size: 12px;
       color: var(--cyan);
@@ -184,7 +183,7 @@
       width: 100%;
       aspect-ratio: 1 / 1;
       background: #000;
-      border-radius: 8px;
+      border-radius: 20px;
       overflow: hidden;
       border: 1px solid var(--border);
       box-shadow: 0 0 0 1px var(--border-glow), 0 8px 32px rgba(0,0,0,0.1);
@@ -200,17 +199,17 @@
     /* Corner decorations */
     .cam-corner {
       position: absolute;
-      width: 18px;
-      height: 18px;
+      width: 24px;
+      height: 24px;
       border-color: var(--cyan);
       border-style: solid;
       opacity: 0.7;
       z-index: 2;
     }
-    .cam-corner.tl { top: 8px; left: 8px; border-width: 2px 0 0 2px; }
-    .cam-corner.tr { top: 8px; right: 8px; border-width: 2px 2px 0 0; }
-    .cam-corner.bl { bottom: 8px; left: 8px; border-width: 0 0 2px 2px; }
-    .cam-corner.br { bottom: 8px; right: 8px; border-width: 0 2px 2px 0; }
+    .cam-corner.tl { top: 12px; left: 12px; border-width: 2px 0 0 2px; border-top-left-radius: 16px; }
+    .cam-corner.tr { top: 12px; right: 12px; border-width: 2px 2px 0 0; border-top-right-radius: 16px; }
+    .cam-corner.bl { bottom: 12px; left: 12px; border-width: 0 0 2px 2px; border-bottom-left-radius: 16px; }
+    .cam-corner.br { bottom: 12px; right: 12px; border-width: 0 2px 2px 0; border-bottom-right-radius: 16px; }
 
     /* Viewfinder */
     .viewfinder {
@@ -221,6 +220,7 @@
       width: 45%;
       aspect-ratio: 1 / 1;
       border: 2px solid var(--accent);
+      border-radius: 16px;
       box-shadow: 0 0 0 1px rgba(232,64,64,0.3), 0 0 16px rgba(232,64,64,0.4), inset 0 0 16px rgba(232,64,64,0.05);
       z-index: 3;
       pointer-events: none;
@@ -252,15 +252,15 @@
     /* VF corner ticks */
     .vf-tick {
       position: absolute;
-      width: 8px;
-      height: 8px;
+      width: 16px;
+      height: 16px;
       border-color: var(--accent);
       border-style: solid;
     }
-    .vf-tick.tl { top: -2px; left: -2px; border-width: 2px 0 0 2px; }
-    .vf-tick.tr { top: -2px; right: -2px; border-width: 2px 2px 0 0; }
-    .vf-tick.bl { bottom: -2px; left: -2px; border-width: 0 0 2px 2px; }
-    .vf-tick.br { bottom: -2px; right: -2px; border-width: 0 2px 2px 0; }
+    .vf-tick.tl { top: -2px; left: -2px; border-width: 2px 0 0 2px; border-top-left-radius: 16px; }
+    .vf-tick.tr { top: -2px; right: -2px; border-width: 2px 2px 0 0; border-top-right-radius: 16px; }
+    .vf-tick.bl { bottom: -2px; left: -2px; border-width: 0 0 2px 2px; border-bottom-left-radius: 16px; }
+    .vf-tick.br { bottom: -2px; right: -2px; border-width: 0 2px 2px 0; border-bottom-right-radius: 16px; }
 
     /* Scan line animation over viewfinder */
     .vf-scan {
@@ -273,6 +273,7 @@
       z-index: 4;
       pointer-events: none;
       overflow: hidden;
+      border-radius: 16px;
     }
 
     .vf-scan::after {
@@ -292,9 +293,9 @@
     /* HUD overlays */
     .cam-hud {
       position: absolute;
-      bottom: 10px;
-      left: 10px;
-      right: 10px;
+      bottom: 24px;
+      left: 20px;
+      right: 20px;
       display: flex;
       justify-content: space-between;
       align-items: flex-end;
@@ -317,7 +318,7 @@
       gap: 10px;
       background: var(--bg-card);
       padding: 12px 16px;
-      border-radius: 8px;
+      border-radius: 16px;
       border: 1px solid var(--border);
     }
     .zoom-label {
@@ -368,7 +369,7 @@
     .result-canvas-wrap {
       width: 100%;
       aspect-ratio: 1/1;
-      border-radius: 8px;
+      border-radius: 20px;
       overflow: hidden;
       border: 1px solid var(--border);
       box-shadow: 0 0 0 1px var(--border-glow), 0 8px 32px rgba(0,0,0,0.1);
@@ -396,7 +397,7 @@
     .result-card {
       background: var(--bg-card);
       border: 1px solid var(--border);
-      border-radius: 8px;
+      border-radius: 20px;
       padding: 16px;
       position: relative;
       overflow: hidden;
@@ -447,7 +448,7 @@
     .meta-cell {
       background: rgba(0,0,0,0.02);
       border: 1px solid var(--border);
-      border-radius: 4px;
+      border-radius: 10px;
       padding: 8px 10px;
     }
 
@@ -469,7 +470,7 @@
     .color-swatch {
       display: inline-block;
       width: 12px; height: 12px;
-      border-radius: 2px;
+      border-radius: 4px;
       vertical-align: middle;
       margin-right: 5px;
       border: 1px solid rgba(0,0,0,0.1);
@@ -479,7 +480,7 @@
     .scale-legend {
       background: var(--bg-card);
       border: 1px solid var(--border);
-      border-radius: 8px;
+      border-radius: 16px;
       padding: 12px 14px;
     }
 
@@ -519,14 +520,14 @@
 
     .scale-bar-swatch {
       width: 18px; height: 18px;
-      border-radius: 3px;
+      border-radius: 6px;
       flex-shrink: 0;
       border: 1px solid rgba(0,0,0,0.1);
     }
 
     .scale-bar-fill {
       height: 8px;
-      border-radius: 2px;
+      border-radius: 4px;
       flex: 1;
     }
 
@@ -545,7 +546,7 @@
       padding: 16px;
       background: linear-gradient(135deg, #c92a2a, var(--accent));
       border: none;
-      border-radius: 8px;
+      border-radius: 18px;
       color: #fff;
       font-family: var(--font-display);
       font-weight: 800;
@@ -585,7 +586,7 @@
       padding: 14px;
       background: transparent;
       border: 1px solid var(--border-glow);
-      border-radius: 8px;
+      border-radius: 16px;
       color: var(--cyan);
       font-family: var(--font-display);
       font-weight: 700;
@@ -607,7 +608,7 @@
       display: none;
       background: var(--bg-card);
       border: 1px solid var(--accent-dim);
-      border-radius: 8px;
+      border-radius: 16px;
       padding: 20px;
       text-align: center;
       gap: 10px;
@@ -670,26 +671,46 @@
     /* Hidden canvas */
     #hiddenCanvas { display: none; }
 
-    /* â”€â”€â”€â”€â”€ INFO BOX â”€â”€â”€â”€â”€ */
+    /* ─────────── INFO BOX ─────────── */
     .info-box {
       background: var(--bg-card);
       border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 14px 16px;
+      border-radius: 16px;
+      padding: 16px 16px;
       margin-top: 4px;
     }
 
     .info-box-title {
       font-family: var(--font-display);
-      font-size: 13px;
-      font-weight: 700;
+      font-size: 14px;
+      font-weight: 800;
       color: var(--cyan);
-      margin-bottom: 8px;
+      margin-bottom: 12px;
       display: flex;
       align-items: center;
       gap: 6px;
       text-transform: uppercase;
       letter-spacing: 0.05em;
+    }
+
+    .info-section {
+      margin-bottom: 16px;
+    }
+
+    .info-section:last-child {
+      margin-bottom: 0;
+    }
+
+    .info-subtitle {
+      font-family: var(--font-display);
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--text-primary);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 6px;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 4px;
     }
 
     .info-box-text {
@@ -704,7 +725,15 @@
       font-weight: 600;
     }
 
-    /* â”€â”€â”€â”€â”€ RINGELMANN ILLUS â”€â”€â”€â”€â”€ */
+    .info-list {
+      padding-left: 20px;
+      margin-top: 4px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    /* ─────────── RINGELMANN ILLUS ─────────── */
     .rc-illus {
       display: flex;
       justify-content: space-between;
@@ -723,7 +752,7 @@
     .rc-box {
       width: 100%;
       aspect-ratio: 1/1;
-      border-radius: 4px;
+      border-radius: 8px;
       border: 1px solid rgba(0,0,0,0.15);
       box-shadow: 0 2px 8px rgba(0,0,0,0.1);
     }
