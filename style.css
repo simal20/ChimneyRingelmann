@@ -393,9 +393,7 @@
       width: 35%;
       aspect-ratio: 1/1;
       object-fit: cover;
-      border-radius: 8px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-      border: 2px solid #fff;
+      clip-path: polygon(50% 0%, 100% 38%, 82% 100%, 18% 100%, 0% 38%);
     }
 
     .result-stamp {
