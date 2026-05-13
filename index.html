@@ -135,6 +135,12 @@
       background: rgba(34,197,94,0.08);
     }
 
+    .status-badge.loading {
+      color: var(--amber);
+      border-color: var(--amber);
+      background: rgba(245,158,11,0.08);
+    }
+
     .status-badge.idle {
       color: var(--text-muted);
       border-color: var(--border);
@@ -773,6 +779,8 @@
       .camera-container { max-width: 380px; margin: 0 auto; }
     }
   </style>
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/mobilenet"></script>
 </head>
 <body>
 
@@ -951,14 +959,26 @@
   let videoStream = null;
   let videoTrack = null;
   let cssZoom = 1;
+  let mobilenetModel = null;
   let videoEl, hiddenCanvas, captureCanvas;
 
   /* ─────────── INIT ─────────── */
-  window.addEventListener('DOMContentLoaded', () => {
+  window.addEventListener('DOMContentLoaded', async () => {
     videoEl     = document.getElementById('videoFeed');
     hiddenCanvas = document.getElementById('hiddenCanvas');
     captureCanvas = document.getElementById('captureCanvas');
     buildLegend();
+    
+    document.getElementById('captureBtn').disabled = true;
+    document.getElementById('captureBtn').style.opacity = '0.4';
+    setStatus('MEMUAT AI...', false, 'loading');
+    
+    try {
+      mobilenetModel = await mobilenet.load();
+    } catch(e) {
+      console.error("Gagal memuat MobileNet", e);
+    }
+    
     startCamera();
   });
 
@@ -994,7 +1014,14 @@
       videoEl.onloadedmetadata = () => {
         const t = videoTrack.getSettings();
         document.getElementById('resTag').textContent = `RES: ${t.width}×${t.height}`;
-        setStatus('READY', true);
+        
+        if (mobilenetModel) {
+          setStatus('READY', true);
+          document.getElementById('captureBtn').disabled = false;
+          document.getElementById('captureBtn').style.opacity = '1';
+        } else {
+          setStatus('MEMUAT AI...', false, 'loading');
+        }
         setupZoom();
       };
     } catch (err) {
@@ -1060,10 +1087,10 @@
     }
   }
 
-  function setStatus(text, ready) {
+  function setStatus(text, ready, customClass) {
     const badge = document.getElementById('statusBadge');
     document.getElementById('statusText').textContent = text;
-    badge.className = 'status-badge ' + (ready ? 'ready' : 'idle');
+    badge.className = 'status-badge ' + (customClass || (ready ? 'ready' : 'idle'));
   }
 
   /* ─────────── EUCLIDEAN DISTANCE ─────────── */
@@ -1091,7 +1118,7 @@
     // Show overlay
     document.getElementById('procOverlay').classList.add('visible');
 
-    setTimeout(() => {
+    setTimeout(async () => {
       try {
         const vw = videoEl.videoWidth;
         const vh = videoEl.videoHeight;
@@ -1144,14 +1171,37 @@
           Math.round(bSum / pixels)
         ];
 
-        // Classify
-        const result = classifyRGB(avgRGB);
-
         // Draw cropped image to display canvas
         captureCanvas.width  = cropW;
         captureCanvas.height = cropH;
         const dCtx = captureCanvas.getContext('2d');
         dCtx.putImageData(imgData, 0, 0);
+
+        // AI Verification
+        if (mobilenetModel) {
+          const predictions = await mobilenetModel.classify(captureCanvas);
+          const keywords = ['chimney', 'smokestack', 'pipe', 'factory', 'refinery', 'power plant', 'tower', 'pole'];
+          
+          let isValid = false;
+          let topPred = predictions[0] ? predictions[0].className : 'Tidak diketahui';
+          
+          for (let p of predictions) {
+            let className = p.className.toLowerCase();
+            if (keywords.some(kw => className.includes(kw))) {
+              isValid = true;
+              break;
+            }
+          }
+          
+          if (!isValid) {
+            document.getElementById('procOverlay').classList.remove('visible');
+            alert(`Objek cerobong tidak valid! AI mendeteksi ini sebagai: ${topPred}. Harap arahkan kamera tepat ke cerobong asap.`);
+            return;
+          }
+        }
+
+        // Classify Ringelmann
+        const result = classifyRGB(avgRGB);
 
         // Stop camera
         stopCamera();
