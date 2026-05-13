@@ -24,7 +24,7 @@ window.addEventListener('DOMContentLoaded', async () => {
 
   document.getElementById('captureBtn').disabled = true;
   document.getElementById('captureBtn').style.opacity = '0.4';
-  setStatus('MEMUAT AI...', false, 'loading');
+  setStatus('MEMUAT...', false, 'loading');
 
   try {
     mobilenetModel = await mobilenet.load();
