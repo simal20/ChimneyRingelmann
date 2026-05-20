@@ -55,9 +55,9 @@ async function startCamera() {
       }
     };
     videoStream = await navigator.mediaDevices.getUserMedia(constraints);
-    videoEl.srcObject = videoStream;
     videoTrack = videoStream.getVideoTracks()[0];
-    videoEl.onloadedmetadata = () => {
+
+    const initVideoMetadata = () => {
       const t = videoTrack.getSettings();
       document.getElementById('resTag').textContent = `RES: ${t.width}×${t.height}`;
 
@@ -66,6 +66,13 @@ async function startCamera() {
       document.getElementById('captureBtn').style.opacity = '1';
       setupZoom();
     };
+
+    videoEl.onloadedmetadata = initVideoMetadata;
+    videoEl.srcObject = videoStream;
+
+    if (videoEl.readyState >= 1) {
+      initVideoMetadata();
+    }
   } catch (err) {
     console.error('Camera error:', err);
     document.getElementById('permError').classList.add('visible');
