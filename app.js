@@ -12,7 +12,6 @@ const RINGELMANN = [
 let videoStream = null;
 let videoTrack = null;
 let cssZoom = 1;
-let mobilenetModel = null;
 let videoEl, hiddenCanvas, captureCanvas;
 
 /* ─────────── INIT ─────────── */
@@ -24,13 +23,7 @@ window.addEventListener('DOMContentLoaded', async () => {
 
   document.getElementById('captureBtn').disabled = true;
   document.getElementById('captureBtn').style.opacity = '0.4';
-  setStatus('MEMUAT...', false, 'loading');
-
-  try {
-    mobilenetModel = await mobilenet.load();
-  } catch (e) {
-    console.error("Gagal memuat MobileNet", e);
-  }
+  setStatus('MEMULAI KAMERA...', false, 'loading');
 
   startCamera();
 });
@@ -68,13 +61,9 @@ async function startCamera() {
       const t = videoTrack.getSettings();
       document.getElementById('resTag').textContent = `RES: ${t.width}×${t.height}`;
 
-      if (mobilenetModel) {
-        setStatus('READY', true);
-        document.getElementById('captureBtn').disabled = false;
-        document.getElementById('captureBtn').style.opacity = '1';
-      } else {
-        setStatus('MEMUAT...', false, 'loading');
-      }
+      setStatus('READY', true);
+      document.getElementById('captureBtn').disabled = false;
+      document.getElementById('captureBtn').style.opacity = '1';
       setupZoom();
     };
   } catch (err) {
@@ -230,27 +219,6 @@ function doCapture() {
       const dCtx = captureCanvas.getContext('2d');
       dCtx.putImageData(imgData, 0, 0);
 
-      // AI Verification
-      let aiErrorMsg = null;
-      if (mobilenetModel) {
-        const predictions = await mobilenetModel.classify(captureCanvas);
-        const keywords = ['chimney', 'smokestack', 'pipe', 'smoke', 'exhaust'];
-
-        let isValid = false;
-
-        for (let p of predictions) {
-          let className = p.className.toLowerCase();
-          if (keywords.some(kw => className.includes(kw))) {
-            isValid = true;
-            break;
-          }
-        }
-
-        if (!isValid) {
-          aiErrorMsg = "Gambar tidak sesuai dan perlu ambil ulang.";
-        }
-      }
-
       // Classify Ringelmann
       const result = classifyRGB(avgRGB);
 
@@ -258,7 +226,7 @@ function doCapture() {
       stopCamera();
 
       // Show results
-      showResults(avgRGB, result, aiErrorMsg);
+      showResults(avgRGB, result);
 
     } catch (e) {
       console.error(e);
@@ -270,7 +238,7 @@ function doCapture() {
 }
 
 /* ─────────── SHOW RESULTS ─────────── */
-function showResults(avgRGB, result, aiErrorMsg) {
+function showResults(avgRGB, result) {
   const r = result.ref;
 
   // Update card accent color
@@ -281,38 +249,28 @@ function showResults(avgRGB, result, aiErrorMsg) {
   document.getElementById('resultStamp').textContent =
     now.toLocaleString('id-ID', { dateStyle: 'short', timeStyle: 'medium' });
 
-  if (aiErrorMsg) {
-    card.style.setProperty('--result-accent', '#ef4444');
-    document.getElementById('resultScale').textContent = "TIDAK SESUAI";
-    document.getElementById('resultScale').style.fontSize = "26px";
-    document.getElementById('resultDesc').textContent = aiErrorMsg;
+  card.style.setProperty('--result-accent', r.color);
+  document.getElementById('resultScale').textContent =
+    `Skala ${r.scale} — ${r.status}`;
+  document.getElementById('resultScale').style.fontSize = "32px";
+  document.getElementById('resultDesc').textContent =
+    `${r.label} · ${r.status.toUpperCase()}`;
 
-    document.querySelector('.result-meta-row').style.display = 'none';
-    document.getElementById('scaleLegend').style.display = 'none';
-  } else {
-    card.style.setProperty('--result-accent', r.color);
-    document.getElementById('resultScale').textContent =
-      `Skala ${r.scale} — ${r.status}`;
-    document.getElementById('resultScale').style.fontSize = "32px";
-    document.getElementById('resultDesc').textContent =
-      `${r.label} · ${r.status.toUpperCase()}`;
+  // Meta cells
+  document.getElementById('metaRgb').textContent =
+    `rgb(${avgRGB[0]}, ${avgRGB[1]}, ${avgRGB[2]})`;
+  document.getElementById('metaRef').innerHTML =
+    `<span class="color-swatch" style="background:${r.hex}"></span>${r.hex}`;
+  document.getElementById('metaDist').textContent =
+    result.distance.toFixed(2);
+  document.getElementById('metaOpacity').textContent =
+    `${r.opacity}%`;
 
-    // Meta cells
-    document.getElementById('metaRgb').textContent =
-      `rgb(${avgRGB[0]}, ${avgRGB[1]}, ${avgRGB[2]})`;
-    document.getElementById('metaRef').innerHTML =
-      `<span class="color-swatch" style="background:${r.hex}"></span>${r.hex}`;
-    document.getElementById('metaDist').textContent =
-      result.distance.toFixed(2);
-    document.getElementById('metaOpacity').textContent =
-      `${r.opacity}%`;
+  document.querySelector('.result-meta-row').style.display = 'grid';
+  document.getElementById('scaleLegend').style.display = 'block';
 
-    document.querySelector('.result-meta-row').style.display = 'grid';
-    document.getElementById('scaleLegend').style.display = 'block';
-
-    // Rebuild legend with highlight
-    buildLegend(result.index);
-  }
+  // Rebuild legend with highlight
+  buildLegend(result.index);
 
   // Switch views
   document.getElementById('cameraView').style.display = 'none';
